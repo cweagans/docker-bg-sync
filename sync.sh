@@ -143,3 +143,4 @@ $SYNC_EXTRA_UNISON_PROFILE_OPTS
 # Start syncing files.
 log_heading "Starting continuous sync."
 unison default
+
