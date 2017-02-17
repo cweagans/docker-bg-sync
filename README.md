@@ -62,6 +62,9 @@ documented below.
     **IMPORTANT**: The *ability* to add extra lines to your Unison profile is
     supported by the bg-sync project. The *results* of what might happen because
     of this configuration is *not*. Use this option at your own risk.
+  * **`SYNC_NODELETE_SOURCE`** (default: '1'): Set this variable to "0" to allow
+    Unison to sync deletions to the source directory. This could cause unpredictable
+    behaviour with your source files.
 
 ## Why not use *x*?
 
