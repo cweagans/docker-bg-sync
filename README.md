@@ -93,3 +93,6 @@ Specific reasons:
 * Mickael Perrin - [docker-magic-sync](https://github.com/mickaelperrin/docker-magic-sync)
 * Eugen Mayer - [docker-sync](https://github.com/eugenmayer/docker-sync)
 
+## Donations
+
+Bitcoin donation address: 149NMUk73ETqEP3ML9sghpWQqEqAREX9z2
