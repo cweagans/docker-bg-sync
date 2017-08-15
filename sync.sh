@@ -109,7 +109,7 @@ fi
 # Generate a unison profile so that we don't have a million options being passed
 # to the unison command.
 log_heading "Generating Unison profile"
-[ -d "/root/.unison" ] || mkdir /root/.unison
+[ -d "/home/${UNISON_USER}/.unison" ] || mkdir -p /home/${UNISON_USER}/.unison
 
 unisonsilent="true"
 if [[ "$SYNC_VERBOSE" == "0" ]]; then
@@ -153,9 +153,15 @@ ignore = Name *___jb_tmp___*
 # Additional user configuration
 $SYNC_EXTRA_UNISON_PROFILE_OPTS
 
-" > /root/.unison/default.prf
+" > /home/${UNISON_USER}/.unison/default.prf
+
+# Fix permissions
+log_heading "Override folder permissions."
+
+chown -R ${UNISON_USER}:${UNISON_GROUP} $SYNC_SOURCE
+chown -R ${UNISON_USER}:${UNISON_GROUP} $SYNC_DESTINATION
 
 # Start syncing files.
 log_heading "Starting continuous sync."
-unison default
 
+su -c "unison default" -s /bin/sh ${UNISON_USER}
