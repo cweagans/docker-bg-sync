@@ -18,6 +18,16 @@ log_error_exit() {
   exit 1
 }
 
+# Create non-root user
+if [ "$UNISON_USER" != "root" ]; then
+  log_heading "Setting up non-root user ${UNISON_USER}."
+  HOME="/home/${UNISON_USER}"
+  addgroup -g $UNISON_GID -S $UNISON_GROUP
+  adduser -u $UNISON_UID -D -S -G $UNISON_GROUP $UNISON_USER
+  mkdir -p ${HOME}/.unison
+  chown -R ${UNISON_USER}:${UNISON_GROUP} ${HOME}
+fi
+
 #
 # Set defaults for all variables that we depend on (if they aren't already set in env).
 #
@@ -109,7 +119,7 @@ fi
 # Generate a unison profile so that we don't have a million options being passed
 # to the unison command.
 log_heading "Generating Unison profile"
-[ -d "/home/${UNISON_USER}/.unison" ] || mkdir -p /home/${UNISON_USER}/.unison
+[ -d "${HOME}/.unison" ] || mkdir -p ${HOME}/.unison
 
 unisonsilent="true"
 if [[ "$SYNC_VERBOSE" == "0" ]]; then
@@ -153,7 +163,7 @@ ignore = Name *___jb_tmp___*
 # Additional user configuration
 $SYNC_EXTRA_UNISON_PROFILE_OPTS
 
-" > /home/${UNISON_USER}/.unison/default.prf
+" > ${HOME}/.unison/default.prf
 
 # Fix permissions
 log_heading "Override folder permissions."
