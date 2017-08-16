@@ -18,6 +18,16 @@ log_error_exit() {
   exit 1
 }
 
+# Create non-root user
+if [ "$UNISON_USER" != "root" ]; then
+  log_heading "Setting up non-root user ${UNISON_USER}."
+  HOME="/home/${UNISON_USER}"
+  addgroup -g $UNISON_GID -S $UNISON_GROUP
+  adduser -u $UNISON_UID -D -S -G $UNISON_GROUP $UNISON_USER
+  mkdir -p ${HOME}/.unison
+  chown -R ${UNISON_USER}:${UNISON_GROUP} ${HOME}
+fi
+
 #
 # Set defaults for all variables that we depend on (if they aren't already set in env).
 #
@@ -28,6 +38,9 @@ log_error_exit() {
 # The destination for sync. When files are changed in the source, they are automatically
 # synced to the destination.
 : ${SYNC_DESTINATION:="/destination"}
+
+# The preferred approach to deal with conflicts
+: ${SYNC_PREFER:=$SYNC_SOURCE}
 
 # If set, there will be more verbose log output from various commands that are
 # run by this script.
@@ -106,7 +119,7 @@ fi
 # Generate a unison profile so that we don't have a million options being passed
 # to the unison command.
 log_heading "Generating Unison profile"
-[ -d "/root/.unison" ] || mkdir /root/.unison
+[ -d "${HOME}/.unison" ] || mkdir -p ${HOME}/.unison
 
 unisonsilent="true"
 if [[ "$SYNC_VERBOSE" == "0" ]]; then
@@ -116,6 +129,11 @@ fi
 nodelete=""
 if [[ "$SYNC_NODELETE_SOURCE" == "1" ]]; then
   nodelete="nodeletion=$SYNC_SOURCE"
+fi
+
+prefer="$SYNC_SOURCE"
+if [ -z "${SYNC_PREFER}" ]; then
+  prefer=${SYNC_PREFER}
 fi
 
 echo "
@@ -133,7 +151,7 @@ contactquietly=true
 fastcheck=true
 maxthreads=10
 $nodelete
-prefer=$SYNC_SOURCE
+prefer=$SYNC_PREFER
 repeat=watch
 silent=$unisonsilent
 
@@ -145,9 +163,9 @@ ignore = Name *___jb_tmp___*
 # Additional user configuration
 $SYNC_EXTRA_UNISON_PROFILE_OPTS
 
-" > /root/.unison/default.prf
+" > ${HOME}/.unison/default.prf
 
 # Start syncing files.
 log_heading "Starting continuous sync."
-unison default
 
+su -c "unison default" -s /bin/sh ${UNISON_USER}

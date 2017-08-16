@@ -23,6 +23,12 @@ RUN apk add --no-cache --virtual .build-dependencies build-base curl && \
     apk del .build-dependencies ocaml && \
     rm -rf /tmp/unison-${UNISON_VERSION}
 
+ENV HOME="/root" \
+    UNISON_USER="root" \
+    UNISON_GROUP="root" \
+    UNISON_UID="0" \
+    UNISON_GID="0"
+
 # Copy the bg-sync script into the container.
 COPY sync.sh /usr/local/bin/bg-sync
 RUN chmod +x /usr/local/bin/bg-sync
