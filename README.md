@@ -69,6 +69,13 @@ documented below.
   * **`SYNC_NODELETE_SOURCE`** (default: '1'): Set this variable to "0" to allow
     Unison to sync deletions to the source directory. This could cause unpredictable
     behaviour with your source files.
+  * **`UNISON_USER`** (default: 'root'): The user running Unison. When this value
+    is customized it's also possible to specify UNISON_UID, UNISON_GROUP and
+    UNISON_GID to ensure that unison has the correct permissions to manage files
+    under SYNC_SOURCE and SYNC_DESTINATION.
+  * **`UNISON_UID`** (default: '0'): See UNISON_USER.
+  * **`UNISON_GROUP`** (default: 'root'): See UNISON_USER.
+  * **`UNISON_GID`** (default: '0'): See UNISON_USER.
 
 ## Why not use *x*?
 
