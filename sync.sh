@@ -165,12 +165,6 @@ $SYNC_EXTRA_UNISON_PROFILE_OPTS
 
 " > ${HOME}/.unison/default.prf
 
-# Fix permissions
-log_heading "Override folder permissions."
-
-chown -R ${UNISON_USER}:${UNISON_GROUP} $SYNC_SOURCE
-chown -R ${UNISON_USER}:${UNISON_GROUP} $SYNC_DESTINATION
-
 # Start syncing files.
 log_heading "Starting continuous sync."
 
