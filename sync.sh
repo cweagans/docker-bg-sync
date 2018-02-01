@@ -159,6 +159,7 @@ silent=$unisonsilent
 ignore = Path .git/*
 ignore = Path .idea/*
 ignore = Name *___jb_tmp___*
+ignore = Name {.*,*}.sw[pon]
 
 # Additional user configuration
 $SYNC_EXTRA_UNISON_PROFILE_OPTS
