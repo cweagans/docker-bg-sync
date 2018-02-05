@@ -46,11 +46,12 @@ documented below.
     If you are using bg-sync to avoid filesystem slowness, you should set this
     path to whatever path the volume is at in your application container. In the
     example above, for instance, this would be `/var/www/myapp`.
-  * **`SYNC_PREFER`** (default: `/source`): Control the conflict strategy to apply
-    when there are conflits. By default the contents from the source folder are
-    left unchanged but there is also the "newer" option to pick up the most
-    recent files.
-  * **`SYNC_VERBOSE`** (default: "0"): Set this variable to "1" to get more log
+  * **`SYNC_PREFER`** (default: `newer`): Control the conflict strategy to apply
+    when there are conflits. By default Unison will pick up the most
+    recent files. Set it to `/source` and the contents from the source folder are
+    left unchanged when there are changes on the host. Set it to the path defined
+    for `SYNC_DESTINATION` to only propagate changes from the host into the container.
+  * **`SYNC_VERBOSE`** (default: "0"): Set this variable to "1" to get more log
     output from Unison.
   * **`SYNC_MAX_INOTIFY_WATCHES`** (default: ''): If set, the sync script will
     attempt to increase the value of `fs.inotify.max_user_watches`. **IMPORTANT**:
