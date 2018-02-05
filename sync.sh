@@ -40,7 +40,7 @@ fi
 : ${SYNC_DESTINATION:="/destination"}
 
 # The preferred approach to deal with conflicts
-: ${SYNC_PREFER:=$SYNC_SOURCE}
+: ${SYNC_PREFER:="newer"}
 
 # If set, there will be more verbose log output from various commands that are
 # run by this script.
