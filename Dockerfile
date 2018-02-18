@@ -30,7 +30,7 @@ ENV HOME="/root" \
     UNISON_GID="0"
 
 # Copy the bg-sync script into the container.
-COPY sync.sh /usr/local/bin/bg-sync
+COPY sync /usr/local/bin/bg-sync
 RUN chmod +x /usr/local/bin/bg-sync
 
 CMD ["bg-sync"]
