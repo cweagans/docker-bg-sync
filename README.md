@@ -7,10 +7,34 @@ of files that need to be read inside of a container.
 
 ## Usage
 
-This is a basic `docker-compose.yml` that demonstrates usage of this container.
+These are basic `docker-compose.yml` configurations that demonstrates usage of this container.
+
+### Version 3
 
 ```
+version: '3'
 
+services:
+  web:
+    image: php:7.0-apache
+    volumes:
+      - /var/www/myapp
+
+  bg-sync:
+    image: cweagans/bg-sync
+    volumes:
+      - .:/source
+      - /var/www/myapp
+    environment:
+      - SYNC_DESTINATION=/var/www/myapp
+      - SYNC_MAX_INOTIFY_WATCHES=40000
+      - SYNC_VERBOSE=1
+    privileged: true
+```
+
+### Version 2
+
+```
 version: '2'
 
 services:
