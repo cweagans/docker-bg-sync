@@ -22,11 +22,11 @@ ENV HOME="/root" \
 # If run as UNISON_USER other than root, it still uses /root as $HOME
 RUN mkdir -p $HOME/.unison && chmod ugo+rwx $HOME && chmod ugo+rwx $HOME/.unison
 
-# Copy the bg-sync script into the container.
-COPY sync.sh /usr/local/bin/bg-sync
-RUN chmod +x /usr/local/bin/bg-sync
-
 ADD files /
+
+# Copy the bg-sync script into /usr/local/bin.
+COPY /files/sync.sh /usr/local/bin/bg-sync
+RUN chmod +x /usr/local/bin/bg-sync
 
 HEALTHCHECK --start-period=30s --interval=10s --retries=5 CMD ["/healthcheck.sh"]
 CMD ["bg-sync"]
