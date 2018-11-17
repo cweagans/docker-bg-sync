@@ -16,7 +16,8 @@ RUN apk add --no-cache --virtual .build-dependencies build-base curl && \
     apk del .build-dependencies ocaml && \
     rm -rf /tmp/unison-${UNISON_VERSION}
 
-ENV HOME="/root"
+ENV HOME="/root" \
+    UNISONLOCALHOSTNAME="container"
 
 # If run as UNISON_USER other than root, it still uses /root as $HOME
 RUN mkdir -p $HOME/.unison && chmod ugo+rwx $HOME && chmod ugo+rwx $HOME/.unison

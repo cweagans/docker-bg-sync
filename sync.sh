@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -o pipefail nounset errexit
 
 # Log output formatters
 log_heading() {
@@ -84,14 +84,15 @@ if [[ "$SYNC_VERBOSE" == "0" ]]; then
   SYNC_RSYNC_ARGS="$SYNC_RSYNC_ARGS --quiet"
 fi
 
-log_heading "Calculating number of files in $SYNC_SOURCE."
-file_count="$(ls -Ra $SYNC_SOURCE | wc -l)"
-max_files=$(("$file_count" + 10000))
+if [ -z "$(ls -A $SYNC_DESTINATON)" ]; then
+  log_heading "SYNC_DESTINATION was empty so performing initial rsync"
+  rsync -a "$SYNC_SOURCE/" "$SYNC_DESTINATION/"
+  log_heading "initial rsync is complete"
+fi
 
-log_heading "Setting inotify to monitor ${max_files}" files
-log_info "By default, inotify can only monitor 8192 files. The configured source directory"
-log_info "contains $file_count files. so setting fs.inotify.max_user_watches=${max_files}"
-sudo sysctl -w fs.inotify.max_user_watches=${max_files}
+log_heading "Calculating number of files in $SYNC_SOURCE in the background"
+log_info "in order to set fs.inotify.max_user_watches"
+/set_max_user_watches.sh ${SYNC_SOURCE} 2>&1 >/dev/stdout &
 
 # Generate a unison profile so that we don't have a million options being passed
 # to the unison command.
