@@ -1,7 +1,7 @@
 FROM alpine:3.8
 MAINTAINER Cameron Eagans <me@cweagans.net>
 
-RUN apk add --no-cache bash sudo
+RUN apk add --no-cache bash sudo rsync
 
 # Install Unison from source with inotify support + remove compilation tools
 ARG UNISON_VERSION=2.51.2
@@ -28,4 +28,5 @@ RUN chmod +x /usr/local/bin/bg-sync
 
 ADD files /
 
+HEALTHCHECK --start-period=30s --interval=10s --retries=5 CMD ["/healthcheck.sh"]
 CMD ["bg-sync"]

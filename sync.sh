@@ -84,15 +84,15 @@ if [[ "$SYNC_VERBOSE" == "0" ]]; then
   SYNC_RSYNC_ARGS="$SYNC_RSYNC_ARGS --quiet"
 fi
 
-if [ -z "$(ls -A $SYNC_DESTINATON)" ]; then
-  log_heading "SYNC_DESTINATION was empty so performing initial rsync"
-  rsync -a "$SYNC_SOURCE/" "$SYNC_DESTINATION/"
-  log_heading "initial rsync is complete"
-fi
-
 log_heading "Calculating number of files in $SYNC_SOURCE in the background"
 log_info "in order to set fs.inotify.max_user_watches"
 /set_max_user_watches.sh ${SYNC_SOURCE} 2>&1 >/dev/stdout &
+
+if [ -z "$(ls -A $SYNC_DESTINATION)" ]; then
+  log_heading "SYNC_DESTINATION was empty so performing initial rsync from SYNC_SOURCE=${SYNC_SOURCE} to SYNC_DESTINATION=${SYNC_DESTINATION}"
+  rsync -a "${SYNC_SOURCE}/" "${SYNC_DESTINATION}/"
+  log_heading "initial rsync from ${SYNC_SOURCE} to ${SYNC_DESTINATION} is complete"
+fi
 
 # Generate a unison profile so that we don't have a million options being passed
 # to the unison command.
