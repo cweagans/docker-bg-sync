@@ -18,15 +18,10 @@ log_error_exit() {
   exit 1
 }
 
-# Create non-root user
-if [ "$UNISON_USER" != "root" ]; then
-  log_heading "Setting up non-root user ${UNISON_USER}."
-  HOME="/home/${UNISON_USER}"
-  addgroup -g $UNISON_GID -S $UNISON_GROUP
-  adduser -u $UNISON_UID -D -S -G $UNISON_GROUP $UNISON_USER
-  mkdir -p ${HOME}/.unison
-  chown -R ${UNISON_USER}:${UNISON_GROUP} ${HOME}
-fi
+export UNISON_UID=$(id -u)
+export UNISON_GID=$(id -g)
+log_heading "Setting up HOME for user uid ${UNISON_UID}."
+sudo chown -R ${UNISON_UID}:${UNISON_GID} ${HOME} ${SYNC_DESTINATION}
 
 #
 # Set defaults for all variables that we depend on (if they aren't already set in env).
@@ -89,32 +84,14 @@ if [[ "$SYNC_VERBOSE" == "0" ]]; then
   SYNC_RSYNC_ARGS="$SYNC_RSYNC_ARGS --quiet"
 fi
 
-if [ -z "${SYNC_MAX_INOTIFY_WATCHES}" ]; then
-  # If SYNC_MAX_INOTIFY_WATCHES is not set and the number of files in the source
-  # is greater than the default inotify limit, warn the user so that they can
-  # take appropriate action.
-  file_count="$(find $SYNC_SOURCE | wc -l)"
-  if [[ "$file_count" < "8192" ]]; then
-    log_heading "inotify may not be able to monitor all of your files!"
-    log_info "By default, inotify can only monitor 8192 files. The configured source directory"
-    log_info "contains $file_count files. It's extremely likely that you will need to increase"
-    log_info "your inotify limit in order to be able to sync your files properly."
-    log_info "See the documentation for the SYNC_MAX_INOTIFY_WATCHES environment variable"
-    log_info "to handle increasing that limit inside of this container."
-  fi
-else
-  # If bg-sync runs with this environment variable set, we'll try to set the config
-  # appropriately, but there's not much we can do if we're not allowed to do that.
-  log_heading "Attempting to set maximum inotify watches to $SYNC_MAX_INOTIFY_WATCHES"
-  log_info "If the container exits with 'Operation not allowed', make sure that"
-  log_info "the container is running in privileged mode."
-  if [ -z "$(sysctl -p)" ]; then
-    echo fs.inotify.max_user_watches=$SYNC_MAX_INOTIFY_WATCHES | tee -a /etc/sysctl.conf && sysctl -p
-  else
-    log_info "Looks like /etc/sysctl.conf already has fs.inotify.max_user_watches defined."
-    log_info "Skipping this step."
-  fi
-fi
+log_heading "Calculating number of files in $SYNC_SOURCE."
+file_count="$(ls -R1u $SYNC_SOURCE | wc -l)"
+max_files=$(("$file_count" + 10000))
+
+log_heading "Setting inotify to monitor ${max_files}" files
+log_info "By default, inotify can only monitor 8192 files. The configured source directory"
+log_info "contains $file_count files. so setting fs.inotify.max_user_watches=${max_files}"
+sudo sysctl -w fs.inotify.max_user_watches=${max_files}
 
 # Generate a unison profile so that we don't have a million options being passed
 # to the unison command.
@@ -154,6 +131,7 @@ $nodelete
 prefer=$SYNC_PREFER
 repeat=watch
 silent=$unisonsilent
+logfile=/var/log/unison.log
 
 # Files to ignore
 ignore = Path .git/*
@@ -167,6 +145,6 @@ $SYNC_EXTRA_UNISON_PROFILE_OPTS
 " > ${HOME}/.unison/default.prf
 
 # Start syncing files.
-log_heading "Starting continuous sync."
+log_heading "Starting unison continuous sync."
 
-su -c "unison default" -s /bin/sh ${UNISON_USER}
+exec unison -numericids default
