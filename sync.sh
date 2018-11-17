@@ -85,7 +85,7 @@ if [[ "$SYNC_VERBOSE" == "0" ]]; then
 fi
 
 log_heading "Calculating number of files in $SYNC_SOURCE."
-file_count="$(ls -R1u $SYNC_SOURCE | wc -l)"
+file_count="$(ls -Ra $SYNC_SOURCE | wc -l)"
 max_files=$(("$file_count" + 10000))
 
 log_heading "Setting inotify to monitor ${max_files}" files
@@ -131,13 +131,7 @@ $nodelete
 prefer=$SYNC_PREFER
 repeat=watch
 silent=$unisonsilent
-logfile=/var/log/unison.log
-
-# Files to ignore
-ignore = Path .git/*
-ignore = Path .idea/*
-ignore = Name *___jb_tmp___*
-ignore = Name {.*,*}.sw[pon]
+logfile=/dev/stdout
 
 # Additional user configuration
 $SYNC_EXTRA_UNISON_PROFILE_OPTS

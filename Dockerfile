@@ -33,6 +33,5 @@ COPY sync.sh /usr/local/bin/bg-sync
 RUN chmod +x /usr/local/bin/bg-sync
 
 ADD files /
-RUN chmod ugo+rw /var/log/unison.log
 
 CMD ["bg-sync"]
