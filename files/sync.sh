@@ -86,6 +86,7 @@ fi
 
 log_heading "Calculating number of files in $SYNC_SOURCE in the background"
 log_info "in order to set fs.inotify.max_user_watches"
+sudo sysctl -w fs.inotify.max_user_watches=${SYNC_MAX_INOTIFY_WATCHES:-20000}
 /set_max_user_watches.sh ${SYNC_SOURCE} 2>&1 >/dev/stdout &
 
 if [ -z "$(ls -A $SYNC_DESTINATION)" ]; then
